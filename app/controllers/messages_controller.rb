@@ -12,7 +12,14 @@ class MessagesController < ApplicationController
   # POST /messages.json
   def create
     @message = Message.new(message_params)
-    @message.save
+    if @message.save
+      ActionCable.server.broadcast "chat", {
+        message: render(
+          partial: 'message',
+          locals: { message: @message }
+        ).squish
+      }
+    end
   end
 
   private
